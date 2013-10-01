@@ -5,8 +5,7 @@ import game
 import utils
 
 def games_stream(scanner, games_col):
-    for raw_game in utils.progress_meter(
-        scanner.scan(games_col, {})):
+    for raw_game in utils.progress_meter(scanner.scan(games_col, {})):
         yield game.Game(raw_game)
 
 def available_cards(game_obj, gained_list):

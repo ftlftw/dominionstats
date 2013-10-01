@@ -114,6 +114,7 @@ def parse_game_from_dict(log, parse_error_col, game):
     try:
         parsed = parse_game(contents, dubious_check = True)
         parsed['_id'] = game['_id']
+        parsed['sortable_id'] = game['sortable_id']
         parsed['game_date'] = game['game_date']
         return parsed
     except parse_common.BogusGameError as bge:

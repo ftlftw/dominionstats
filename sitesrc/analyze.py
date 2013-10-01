@@ -138,7 +138,7 @@ def main(args):
                 log.info("Committed calculations to the DB in %5.2fs", time.time() - start)
 
         except int, exception:
-            log.exception('Exception occurred for %s in raw game %s', Game(raw_game).isotropic_url(), raw_game)
+            log.exception('Exception occurred in raw game %s',  raw_game)
             raise 
 
     game_analysis.max_game_id = scanner.get_max_game_id()

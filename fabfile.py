@@ -115,8 +115,13 @@ def build(buildwheelhouse=False):
                 # Get rid of some things that don't need to be there
                 sudo("rm -rf test*")
 
+                sudo("mkdir static/output")
+                sudo("mkdir static/leaderboard")
                 # Fix up some permissions
                 sudo("chmod +x *.sh analyze2.py analyze.py count_buys.py game_stats.py goals.py goal_stats.py indexes.py load_leaderboard.py optimal_card_ratios.py run_trueskill.py scrape_leaderboard.py update.py")
+                # TODO: What are the right permissions here? 
+                sudo("chmod a+rwx static/output")
+                sudo("chmod a+rwx static/leaderboard")
 
         # Create the static directory from which Nginx will serve
         # necessary files

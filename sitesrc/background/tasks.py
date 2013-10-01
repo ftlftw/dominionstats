@@ -24,6 +24,7 @@ log = get_task_logger(__name__)
 PARSE_GAMES_CHUNK_SIZE = 100
 CALC_GOALS_CHUNK_SIZE = 100
 SUMMARIZE_GAMES_CHUNK_SIZE = 2000
+LAST_ISOTROPIC_DAY = datetime.date(2013,3,15)
 
 
 @celery.task
@@ -175,19 +176,23 @@ def scrape_raw_games(date):
     """
     db = utils.get_mongo_database()
 
-    # TODO: Make this support Goko and Iso at the same time
-    scraper = goko.GokoScraper(db)
+    # Make this support Goko and Iso at the same time
+    if date <= LAST_ISOTROPIC_DAY:
+        scraper = isotropic.IsotropicScraper(db)
+        source_key = 'I'
+    else:
+        scraper = goko.GokoScraper(db)
+        source_key = 'G'
 
     try:
         inserted = scraper.scrape_and_store_rawgames(date)
         if inserted > 0:
             # Also need to parse the raw games for the days where we
             # inserted new records.
-            # TODO: Make this support Goko and Iso at the same time
-            parse_days.delay('G', [date])
+            parse_days.delay(source_key, [date])
         return inserted
 
-    except goko.ScrapeError:
+    except goko.ScrapeError, isotropic.ScrapeError:
         log.info("Data for %s is not available", date)
         return None
 

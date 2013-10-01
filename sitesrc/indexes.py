@@ -26,6 +26,7 @@ INDEXES = {
     'raw_games': [
         'game_date',
         'src',
+        'sortable_id',
         ],
     'goals': [
         'goals.player',

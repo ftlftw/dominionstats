@@ -32,7 +32,8 @@ def card_supply_events(game_obj):
                 yield c1_index + ',' + c2_index
 
 def month_events(game_obj):
-    yield game.Game.get_date_from_id(game_obj.get_id())[:6]
+    result = game.Game.get_date_from_id(game_obj.get_id())[:6]
+    yield result
 
 def game_size_events(game_obj):
     yield str(len(game_obj.get_player_decks()))

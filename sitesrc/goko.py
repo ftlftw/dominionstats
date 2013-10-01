@@ -18,7 +18,10 @@ import subprocess
 import sys
 import tarfile
 import time
+import dateutil
+from dateutil import tz
 import urllib2
+import re
 
 import boto.s3.connection
 import bson.binary
@@ -29,8 +32,9 @@ import utils
 # Module-level logging instance
 log = logging.getLogger(__name__)
 
-#s3_location = 'ftl-goko-councilroom-test-bucket'
-s3_location = 'static.councilroom.mccllstr.com'
+s3_location = 'ftl-goko-councilroom-test-bucket'
+#s3_location = 'static.councilroom.mccllstr.com'
+timestamp_from_filename_re = re.compile('log\.[a-z0-9]{24}\.(\d*)\.txt')
 
 class GokoProcessingDate(object):
     # TODO: This is a partial implementation
@@ -187,7 +191,7 @@ class GokoScraper:
             raise
 
         os.chdir(current_directory)
-
+        
         self.establish_s3_connection()
 
         # Upload the contents to s3 in the appropriate key
@@ -235,8 +239,10 @@ class GokoScraper:
             # Not in S3 yet, get it and store it
             self.copy_rawgames_to_s3(date)
 
+
         # Retrieve the game archive for the specified date
         rawgames_archive_contents = self.get_rawgames_from_s3_as_filelike(date)
+
 
         # Insert the individual games into MongoDB
         insert_count = 0
@@ -261,9 +267,16 @@ class GokoScraper:
                         continue
 
                     log.debug("Working on %s", tarinfo.name)
+                    m = timestamp_from_filename_re.match(os.path.basename(tarinfo.name))
+                    if not m:
+                        raise ScrapeError("Unable to parse time for sortable id from %s" % tarinfo.name)
+                    ms_timestamp_string = m.group(1)
+                    hh_mm_ss = datetime.datetime.fromtimestamp(int(ms_timestamp_string)/1000,tz=dateutil.tz.tzutc()).astimezone(dateutil.tz.tzstr('PST5PDT')).strftime('%H%M%S')
+
                     g = { u'_id': os.path.basename(tarinfo.name),
                           u'game_date': yyyy_mm_dd,
                           u'src': 'G',
+                          u'sortable_id': "%s-%s-%s-%s" % (yyyy_mm_dd, hh_mm_ss,ms_timestamp_string, tarinfo.name),
                           u'text': bson.Binary(bz2.compress(t.extractfile(tarinfo).read())) }
                     self.rawgames_col.save(g, safe=True)
                     insert_count += 1

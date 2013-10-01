@@ -153,7 +153,7 @@ class PlayerJsonPage(object):
 
         from pymongo import json_util
 
-        games_arr = [{'game': g[DECKS], 'id': g['_id']} for g in games_coll]
+        games_arr = [{'game': g[DECKS], 'id': g['sortable_id']} for g in games_coll]
 
         return json.dumps(games_arr, default=json_util.default)
 
@@ -232,7 +232,7 @@ class PlayerPage(object):
 
         # NOTE: This assumes that game IDs can be lexically sorted
         # into temporal order
-        for g in games_coll.sort('_id', pymongo.DESCENDING):
+        for g in games_coll.sort('sortable_id', pymongo.DESCENDING):
             g_id = g['_id']['game_id']
             game_list.append(g_id)
 
@@ -333,12 +333,8 @@ class PlayerPage(object):
 
         ret += '<h2>Most recent games</h2>\n'
         qm = query_matcher.QueryMatcher(p1_name=target_player)
-        goko_games = [g for g in game_list if '.txt' in game_list]
-        if len(goko_games) > 2:
-            goko_games.sort(reverse=True)
-            most_recent = goko_games[:3]
-        else:
-            most_recent = game_list[:3]
+        most_recent = game_list[:3]
+
         for g_id in most_recent:
             g = db.games.find_one({'_id': g_id})
             game_val = game.Game(g)

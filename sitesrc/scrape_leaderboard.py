@@ -38,7 +38,7 @@ def get_date_of_last_cached_leaderboard():
     # return the day before the first day on http://bggdl.square7.ch/leaderboard/
     return datetime.date(2011, 3, 10)
 
-def save_file(date, data, is_gzipped):
+def save_file(date, data, is_gzipped, is_bzipped):
     if is_gzipped:
         f = gzip.GzipFile(fileobj=StringIO.StringIO(data))
         try:
@@ -48,13 +48,14 @@ def save_file(date, data, is_gzipped):
             log.warning('Received data was not in gzip format')
         f.close()
 
-    data = bz2.compress(data)
+    if not is_bzipped:
+        data = bz2.compress(data)
 
     f = open(output_directory + str(date) + '.html.bz2', 'w')
     f.write(data)
     f.close()
 
-def scrape_leaderboard(date, host, url, is_gzipped, assert_same_date):
+def scrape_leaderboard(date, host, url, is_gzipped, is_bzipped, assert_same_date):
     try:
         connection = httplib.HTTPConnection(host, timeout=30)
         connection.request('GET', url, headers={'Accept-Encoding': 'gzip'} if is_gzipped else {})
@@ -70,21 +71,21 @@ def scrape_leaderboard(date, host, url, is_gzipped, assert_same_date):
             return 'leaderboard updated'
 
     if response.status == 200:
-        save_file(date, data, is_gzipped)
+        save_file(date, data, is_gzipped, is_bzipped)
 
     return response.status
 
 def scrape_leaderboard_from_councilroom(date):
-    return scrape_leaderboard(date, 'councilroom.com', '/static/leaderboard/' + str(date) + '.html.bz2', False, False)
+    return scrape_leaderboard(date, 'councilroom.com', '/static/leaderboard/' + str(date) + '.html.bz2', False, True, False)
 
 def scrape_leaderboard_from_bggdl(date):
-    return scrape_leaderboard(date, 'bggdl.square7.ch', '/leaderboard/leaderboard-' + str(date) + '.html', True, False)
+    return scrape_leaderboard(date, 'bggdl.square7.ch', '/leaderboard/leaderboard-' + str(date) + '.html', True, False, False)
 
 def scrape_leaderboard_from_goko(date):
     if (datetime.date.today() != date):
         return None
     else:
-        return scrape_leaderboard(date, 'www.goko.com', '/games/Dominion/leaders', False, False)
+        return scrape_leaderboard(date, 'www.goko.com', '/games/Dominion/leaders', False, False, False)
 
 def run_scrape_function_with_retries(scrape_function, date):
     num_attempts = 0

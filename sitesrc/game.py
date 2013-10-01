@@ -8,6 +8,8 @@ players in the game or other games in the collection belongs here.
 import collections
 import itertools
 import re
+import datetime
+import dateutil
 
 from dominioncards import index_to_card, EVERY_SET_CARDS
 from keys import *
@@ -256,6 +258,7 @@ class Game(object):
             self.player_start_decks = None
 
         self.id = game_dict.get('_id', '')
+        self.id = game_dict.get('sortable_id', '')
 
         for raw_pd, pd in zip(game_dict[DECKS], self.player_decks):
             turn_ct = 0
@@ -309,10 +312,10 @@ class Game(object):
 
     @staticmethod
     def get_date_from_id(game_id):
-        GOKO_ID_RE = re.compile('([\d]{4}[\d]{2}[\d]{2})/log.*')
+        GOKO_ID_RE = re.compile('log\.[a-z0-9]{24}\.(\d*)\.txt')
         match = GOKO_ID_RE.match(game_id)
         if match:
-            return match.group(1)
+            return datetime.datetime.frometimestamp(int(match.group(1))/1000,tz=dateutil.tz.tzutc()).astimezone(dateutil.tz.tzstr('PST5PDT')).strftime('%Y%m%d')
         else:
             yyyymmdd_date = game_id.split('-')[1]
             return yyyymmdd_date

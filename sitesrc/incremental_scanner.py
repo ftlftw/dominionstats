@@ -36,7 +36,7 @@ class IncrementalScanner(object):
         assert not 'sortable_id' in query
         assert not '_id' in query
         query['sortable_id'] = {'$gt': self.max_game_id}
-        for item in collection.find(query, timeout=False):
+        for item in collection.find(query):
             self.max_game_id = max(item['sortable_id'], self.max_game_id)
             self.num_games += 1
             yield item

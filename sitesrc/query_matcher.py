@@ -184,7 +184,7 @@ class QueryMatcher(object):
         results = []
         games_cursor = table.find(self.db_query)
         _order = pymongo.DESCENDING
-        for raw_game in games_cursor.sort('_id', _order).limit(self.limit):
+        for raw_game in games_cursor.sort('sortable_id', _order).limit(self.limit):
             results.append(GameMatcher(game.Game(raw_game), self))
         results.sort(key=GameMatcher._game_match_score, reverse=True)
         return results

@@ -91,6 +91,7 @@ class EventAccumulator:
                       event_type_name, inserts, updates)
 
 def accumulate_card_stats(games_stream, stats_accumulator, max_games=-1):
+    
     for game_obj in games_stream:
         detected_events = detect_events(game_obj)
 
@@ -105,14 +106,13 @@ def accumulate_card_stats(games_stream, stats_accumulator, max_games=-1):
                     small_gain_stat.win_given_any_gain.add_outcome(win_points)
                 else:
                     small_gain_stat.win_given_no_gain.add_outcome(win_points)
-                small_gain_stat.win_weighted_gain.add_many_outcomes(
-                    win_points, count)
+                small_gain_stat.win_weighted_gain.add_many_outcomes(win_points, count)
                 card_index = str(card.index)
-                stats_accumulator.merge_stats(detected_events, card_index,
-                                              small_gain_stat)
+                stats_accumulator.merge_stats(detected_events, card_index, small_gain_stat)
         max_games -= 1
         if max_games == 0:
             break
+
 
 def main(args):
     db = utils.get_mongo_database()

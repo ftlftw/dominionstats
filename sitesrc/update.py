@@ -97,7 +97,6 @@ def main(parsed_args):
         log.info("Invoking scrape_raw_games async task for %s", date)
         async_result = watch_and_log(background.tasks.scrape_raw_games.s(date))
         inserted = async_result.get()
-        #inserted = background.tasks.scrape_raw_games(date)
 
         if inserted is None:
             log.info("Nothing processed for %s", date)
@@ -105,9 +104,6 @@ def main(parsed_args):
             log.info("No games inserted for %s", date)
             break
 
-        # TODO: Return now, as we aren't ready to let the rest of this run to completion
-        #log.critical("Return now, as we aren't ready to let the rest of this run to completion")
-        #return
     # Invoke the analyze script
     log.info("Starting analyze")
     analyze.main(parsed_args)
@@ -148,9 +144,14 @@ def main(parsed_args):
     log.info("Calculating goal stats")
     goal_stats.main(parsed_args)
 
+    # TODO: Figure out why this crashes. 
     # Invoke the analyze2 script
     log.info("Starting analyze2") 
     analyze2.main(parsed_args)
+
+    # TODO (?): replace scraping leaderboards from goko with
+    # a TrueSkill calculation, like AI's "Isotropish" leaderboard, 
+    # since goko only gives us the top 100 on the current day. 
 
     # Invoke the scrape_leaderboard script
     log.info("Scraping the leaderboard")

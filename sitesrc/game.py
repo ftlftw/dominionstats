@@ -10,6 +10,7 @@ import itertools
 import re
 import datetime
 import dateutil
+from dateutil import tz
 
 from dominioncards import index_to_card, EVERY_SET_CARDS
 from keys import *
@@ -258,7 +259,7 @@ class Game(object):
             self.player_start_decks = None
 
         self.id = game_dict.get('_id', '')
-        self.id = game_dict.get('sortable_id', '')
+        self.sortable_id = game_dict.get('sortable_id', '')
 
         for raw_pd, pd in zip(game_dict[DECKS], self.player_decks):
             turn_ct = 0
@@ -315,7 +316,7 @@ class Game(object):
         GOKO_ID_RE = re.compile('log\.[a-z0-9]{24}\.(\d*)\.txt')
         match = GOKO_ID_RE.match(game_id)
         if match:
-            return datetime.datetime.frometimestamp(int(match.group(1))/1000,tz=dateutil.tz.tzutc()).astimezone(dateutil.tz.tzstr('PST5PDT')).strftime('%Y%m%d')
+            return datetime.datetime.fromtimestamp(int(match.group(1))/1000,tz=dateutil.tz.tzutc()).astimezone(dateutil.tz.tzstr('PST5PDT')).strftime('%Y%m%d')
         else:
             yyyymmdd_date = game_id.split('-')[1]
             return yyyymmdd_date

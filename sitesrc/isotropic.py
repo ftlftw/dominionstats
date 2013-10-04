@@ -24,8 +24,9 @@ import utils
 # Module-level logging instance
 log = logging.getLogger(__name__)
 
-s3_location = 'ftl-goko-councilroom-test-bucket'
-#s3_location = 'static.councilroom.mccllstr.com'
+#TODO: read this from config file?
+#s3_location = 'ftl-goko-councilroom-test-bucket'
+s3_location = 'static.councilroom.mccllstr.com'
 time_from_filename_re = re.compile('game-\d{8}-(\d{6})-')
 
 class IsotropicProcessingDate(object):

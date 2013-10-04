@@ -32,8 +32,9 @@ import utils
 # Module-level logging instance
 log = logging.getLogger(__name__)
 
-s3_location = 'ftl-goko-councilroom-test-bucket'
-#s3_location = 'static.councilroom.mccllstr.com'
+#TODO: Read this from config file? 
+#s3_location = 'ftl-goko-councilroom-test-bucket'
+s3_location = 'static.councilroom.mccllstr.com'
 timestamp_from_filename_re = re.compile('log\.[a-z0-9]{24}\.(\d*)\.txt')
 
 class GokoProcessingDate(object):
